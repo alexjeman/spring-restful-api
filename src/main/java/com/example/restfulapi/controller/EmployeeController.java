@@ -7,7 +7,9 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(path = "/api/v1")
@@ -60,7 +62,12 @@ class EmployeeController {
 
     @ApiOperation(value = "Delete employee by ID", notes = "Delete employee from database", response = Employee.class)
     @DeleteMapping("/employees/{id}")
-    void deleteEmployee(@PathVariable Long id) {
-        repository.deleteById(id);
+    Map<String, Boolean> deleteEmployee(@PathVariable Long id) throws ResourceNotFoundException {
+        Employee employee = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found by this id"));
+        repository.delete(employee);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("deleted", Boolean.TRUE);
+        return response;
     }
 }
