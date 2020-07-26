@@ -6,7 +6,9 @@ import com.example.restfulapi.repository.EmployeeRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.hateoas.EntityModel;
@@ -16,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping(path = "/api/v1")
+@RequestMapping(path = "/api/v1", produces = {MediaTypes.HAL_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE})
 class EmployeeController {
 
     private final EmployeeRepository repository;
@@ -36,7 +38,9 @@ class EmployeeController {
             Link link = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EmployeeController.class).getEmployee(employee.getId())).withSelfRel();
             employee.add(link);
         }
-        return CollectionModel.of(employees);
+        Link linkSelf = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EmployeeController.class).getAllEmployees()).withSelfRel();
+
+        return CollectionModel.of(employees, linkSelf);
     }
 
 
@@ -45,9 +49,11 @@ class EmployeeController {
     public EntityModel<Employee> getEmployee(@PathVariable Long id) throws ResourceNotFoundException {
 
         Link link = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EmployeeController.class).getEmployee(id)).withSelfRel();
+        Link linkBack = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EmployeeController.class).getAllEmployees()).withSelfRel();
         Employee employee = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Resource not found by this id"));
         employee.add(link);
+        employee.add(linkBack);
         return EntityModel.of(employee);
     }
 
