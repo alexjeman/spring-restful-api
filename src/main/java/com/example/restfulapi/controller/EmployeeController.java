@@ -19,7 +19,6 @@ class EmployeeController {
         this.repository = repository;
     }
 
-    // GET employees
 
     @ApiOperation(value = "Get all employees", notes = "Get a list of all employees", response = Employee.class)
     @GetMapping("/employees")
@@ -36,8 +35,32 @@ class EmployeeController {
                 .orElseThrow(() -> new ResourceNotFoundException("Resource not found by this id"));
     }
 
+
+    @ApiOperation(value = "Add employee to database", notes = "Create a employee entry", response = Employee.class)
     @PostMapping("/employees")
-    public Employee createEmployee(@Validated @RequestBody Employee employee) {
+    Employee createEmployee(@Validated @RequestBody Employee employee) {
         return repository.save(employee);
+    }
+
+
+    @ApiOperation(value = "Update employee by ID", notes = "Update a employee entry in database", response = Employee.class)
+    @PutMapping("/employees/{id}")
+    Employee replaceEmployee(@RequestBody Employee newEmployee, @PathVariable Long id) {
+        return repository.findById(id).map(employee -> {
+            employee.setFirstname(newEmployee.getFirstname());
+            employee.setLastname(newEmployee.getLastname());
+            employee.setEmail(newEmployee.getEmail());
+            return repository.save(employee);
+        }).orElseGet(() -> {
+            newEmployee.setId(id);
+            return repository.save(newEmployee);
+        });
+    }
+
+
+    @ApiOperation(value = "Delete employee by ID", notes = "Delete employee from database", response = Employee.class)
+    @DeleteMapping("/employees/{id}")
+    void deleteEmployee(@PathVariable Long id) {
+        repository.deleteById(id);
     }
 }

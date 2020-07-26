@@ -31,6 +31,7 @@ public class RestfulApiApplication {
     public UiConfiguration uiConfig() {
         return UiConfigurationBuilder.builder()
                 .docExpansion(DocExpansion.LIST)
+                .displayRequestDuration(true)
                 .build();
     }
 
