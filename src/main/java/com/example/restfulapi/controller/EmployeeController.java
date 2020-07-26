@@ -4,12 +4,13 @@ import com.example.restfulapi.exception.ResourceNotFoundException;
 import com.example.restfulapi.model.Employee;
 import com.example.restfulapi.repository.EmployeeRepository;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.http.ResponseEntity;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,14 +28,21 @@ class EmployeeController {
 
     @Operation(summary = "Get all employees", description = "Get a list of all employees")
     @GetMapping("/employees")
-    List<Employee> all() {
-        return repository.findAll();
+    public CollectionModel<Employee> getAllEmployees() throws ResourceNotFoundException {
+
+        List<Employee> employees = repository.findAll();
+
+        for (Employee employee : employees) {
+            Link link = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EmployeeController.class).getEmployee(employee.getId())).withSelfRel();
+            employee.add(link);
+        }
+        return CollectionModel.of(employees);
     }
 
 
     @Operation(summary = "Get employee by ID", description = "Get a list of all employees")
     @GetMapping("/employees/{id}")
-    public EntityModel<Employee>  getEmployee(@PathVariable Long id) throws ResourceNotFoundException {
+    public EntityModel<Employee> getEmployee(@PathVariable Long id) throws ResourceNotFoundException {
 
         Link link = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EmployeeController.class).getEmployee(id)).withSelfRel();
         Employee employee = repository.findById(id)
