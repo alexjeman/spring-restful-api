@@ -4,9 +4,12 @@ import com.example.restfulapi.exception.ResourceNotFoundException;
 import com.example.restfulapi.model.Employee;
 import com.example.restfulapi.repository.EmployeeRepository;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.hateoas.EntityModel;
+import org.springframework.http.ResponseEntity;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +34,13 @@ class EmployeeController {
 
     @Operation(summary = "Get employee by ID", description = "Get a list of all employees")
     @GetMapping("/employees/{id}")
-    Employee one(@PathVariable Long id) throws ResourceNotFoundException {
+    public EntityModel<Employee>  getEmployee(@PathVariable Long id) throws ResourceNotFoundException {
 
-        return repository.findById(id)
+        Link link = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EmployeeController.class).getEmployee(id)).withSelfRel();
+        Employee employee = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Resource not found by this id"));
+        employee.add(link);
+        return EntityModel.of(employee);
     }
 
 

@@ -1,10 +1,12 @@
 package com.example.restfulapi.model;
 
+import org.springframework.hateoas.RepresentationModel;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "employees")
-public class Employee {
+public class Employee extends RepresentationModel<Employee> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
