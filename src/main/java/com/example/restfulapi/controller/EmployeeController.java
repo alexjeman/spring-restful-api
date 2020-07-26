@@ -3,7 +3,7 @@ package com.example.restfulapi.controller;
 import com.example.restfulapi.exception.ResourceNotFoundException;
 import com.example.restfulapi.model.Employee;
 import com.example.restfulapi.repository.EmployeeRepository;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,14 +22,14 @@ class EmployeeController {
     }
 
 
-    @ApiOperation(value = "Get all employees", notes = "Get a list of all employees", response = Employee.class)
+    @Operation(summary = "Get all employees", description = "Get a list of all employees")
     @GetMapping("/employees")
     List<Employee> all() {
         return repository.findAll();
     }
 
 
-    @ApiOperation(value = "Get employee by ID", notes = "Get a list of all employees", response = Employee.class)
+    @Operation(summary = "Get employee by ID", description = "Get a list of all employees")
     @GetMapping("/employees/{id}")
     Employee one(@PathVariable Long id) throws ResourceNotFoundException {
 
@@ -38,14 +38,14 @@ class EmployeeController {
     }
 
 
-    @ApiOperation(value = "Add employee to database", notes = "Create a employee entry", response = Employee.class)
+    @Operation(summary = "Add employee to database", description = "Create a employee entry")
     @PostMapping("/employees")
     Employee createEmployee(@Validated @RequestBody Employee employee) {
         return repository.save(employee);
     }
 
 
-    @ApiOperation(value = "Update employee by ID", notes = "Update a employee entry in database", response = Employee.class)
+    @Operation(summary = "Update employee by ID", description = "Update a employee entry in database")
     @PutMapping("/employees/{id}")
     Employee replaceEmployee(@RequestBody Employee newEmployee, @PathVariable Long id) {
         return repository.findById(id).map(employee -> {
@@ -60,7 +60,7 @@ class EmployeeController {
     }
 
 
-    @ApiOperation(value = "Delete employee by ID", notes = "Delete employee from database", response = Employee.class)
+    @Operation(summary = "Delete employee by ID", description = "Delete employee from database")
     @DeleteMapping("/employees/{id}")
     Map<String, Boolean> deleteEmployee(@PathVariable Long id) throws ResourceNotFoundException {
         Employee employee = repository.findById(id)
